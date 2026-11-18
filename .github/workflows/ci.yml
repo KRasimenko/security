@@ -12,6 +12,9 @@ jobs:
     name: Build, Test and Security
     runs-on: ubuntu-latest
 
+    env:
+      GOTOOLCHAIN: auto
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,7 +22,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26.x'
+          go-version-file: go.mod
           cache: true
 
       - name: Check Go version
