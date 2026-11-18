@@ -1,0 +1,53 @@
+
+name: Go Security CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-check:
+    name: Build, Test and Security
+    runs-on: ubuntu-latest
+
+    steps:
+      # Получение исходного кода
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Установка Go
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      # Загрузка зависимостей
+      - name: Download dependencies
+        run: go mod download
+
+      # Сборка проекта
+      - name: Build
+        run: go build ./...
+
+      # Запуск тестов
+      - name: Run tests
+        run: go test -v ./...
+
+      # Проверка кода
+      - name: Go Vet
+        run: go vet ./...
+
+      # Проверка уязвимостей зависимостей
+      - name: Govulncheck
+        uses: golang/govulncheck-action@v1
+        with:
+          go-version-input: '1.22'
+
+      # Статический анализ безопасности
+      - name: Gosec
+        uses: securego/gosec@master
+        with:
+          args: ./...
