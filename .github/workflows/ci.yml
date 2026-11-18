@@ -12,31 +12,40 @@ jobs:
     name: Build, Test and Security
     runs-on: ubuntu-latest
 
+    env:
+      GOTOOLCHAIN: auto
+
     steps:
-      # Получение исходного кода
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Установка Go
+      # Установка Go 1.26
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26'
+          go-version: '1.26.x'
           cache: true
+
+      # Проверяем фактическую версию Go
+      - name: Check Go version
+        run: |
+          go version
+          go env GOTOOLCHAIN
+          which go
 
       # Загрузка зависимостей
       - name: Download dependencies
         run: go mod download
 
-      # Сборка проекта
+      # Сборка
       - name: Build
         run: go build ./...
 
-      # Запуск тестов
+      # Тестирование
       - name: Run tests
         run: go test -v ./...
 
-      # Проверка кода
+      # Анализ Go-кода
       - name: Go Vet
         run: go vet ./...
 
@@ -44,11 +53,11 @@ jobs:
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
-      # Проверка уязвимостей зависимостей
+      # Проверка уязвимостей
       - name: Run govulncheck
         run: govulncheck ./...
 
-      # Статический анализ безопасности
+      # Анализ безопасности
       - name: Gosec
         uses: securego/gosec@master
         with:
